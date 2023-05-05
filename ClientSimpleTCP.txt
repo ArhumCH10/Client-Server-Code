@@ -1,0 +1,42 @@
+#include<stdio.h>
+#include<unistd.h>
+#include<stdlib.h>
+#include<sys/types.h>
+#include<sys/socket.h>
+#include<arpa/inet.h>
+#include<netinet/in.h>
+#include<string.h>
+
+#define PORT 8080
+#define MAXLINE 1024
+
+int main()
+{
+   int sockfd;
+   char buffer[MAXLINE];
+   char* hello ="Message sent";
+   
+   struct sockaddr_in servaddr;
+   
+   if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) <0 )
+   {
+     perror("Socket not Made");
+     exit(EXIT_FAILURE);
+   }
+   
+   memset(&servaddr, 0, sizeof(servaddr));
+   
+   servaddr.sin_family = AF_INET;
+   servaddr.sin_addr.s_addr = INADDR_ANY;
+   servaddr.sin_port = htons(PORT);
+   
+  connect(sockfd, (struct sockaddr*)&servaddr, sizeof(servaddr));
+
+   send(sockfd, (const char*) hello, strlen(hello), 0);
+   printf("Sent Message is: %s\n", hello);
+   
+   int n = recv(sockfd, (char*) buffer, MAXLINE, 0);
+   buffer[n] = '\0';
+   printf("Recieved Message is: %s\n", buffer);
+   close(sockfd);
+}
